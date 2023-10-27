@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Formik } from "formik";
 import RNPickerSelect from "react-native-picker-select";
 import * as Yup from "yup";
@@ -16,7 +16,8 @@ import moment from "moment";
 import Icon from "react-native-vector-icons/Ionicons";
 import KeyBoardAvoidViewWrapper from "../../components/KeyBoardAdvoidView/KeyBoardAdvoidView";
 import CheckBox from "react-native-check-box";
-import { db } from "../../configs/dbOpen"
+import { db } from "../../configs/dbOpen";
+import { useRoute } from "@react-navigation/native";
 
 const FormSchema = Yup.object().shape({
   name: Yup.string().min(7).max(30).required("Please enter name of hike!"),
@@ -27,77 +28,103 @@ const FormSchema = Yup.object().shape({
   parkingAvailable: Yup.string().required("Please check parking available !"),
 });
 
-export default function Add() {
+export default function Detail() {
   const [showDate, setShowDate] = useState(false);
   const [checkConf, setCheckConf] = useState({
     y: false,
     n: false,
   });
 
+  const route = useRoute();
+  const { idCard, objData } = route.params;
+
   const initialValues = {
-    name: "",
-    location: "",
-    description: "",
-    dateHike: "",
-    level: null,
-    length: "",
-    parkingAvailable: "",
+    name: objData.name,
+    location: objData.location,
+    description: objData.description,
+    dateHike: objData.dateHike,
+    level: objData.level,
+    length: objData.length.toString(),
+    parkingAvailable: objData.parkingAvailable,
+    id: idCard,
   };
   const onPressDate = () => {
     setShowDate(true);
   };
 
-  const createHike = ( val )=> {
+  useEffect(() => {
+    switch (objData.parkingAvailable) {
+      case "Yes":
+        setCheckConf({
+          y: true,
+          n: false,
+        });
+        break;
+      case "No":
+        setCheckConf({
+          y: false,
+          n: true,
+        });
+    }
+  }, [objData]);
+
+  const editHike = (val) => {
     const {
-        name,
-        location,
-        description,
-        dateHike,
-        level,
-        length,
-        parkingAvailable,
-      } = val;
-      const parseNum = parseFloat(length);
-     db.transaction((tx)=>{
-        tx.executeSql(
-            `INSERT OR IGNORE INTO mhikeDataB
-            (name,location,dateHike,length,level,parkingAvailable,description)
-            VALUES (?,?,?,?,?,?,?)
-            `,
-            [name, location, dateHike, parseNum, level, parkingAvailable, description],
-            async (txtObj,resultSet)=>{
-                if(resultSet.rowsAffected<1){
-                    // Alert.alert('The hike is duplicated !', [
-                    //     {text: 'OK', onPress: () => console.log('OK Pressed')},
-                    // ]);
-                    console.log('duplicate error')
-                }else{
-                    // Alert.alert('The hike is created successsfully !', [
-                    //     {text: 'OK', onPress: () => console.log('OK Pressed')},
-                    // ]);
-                    console.log('success')
-                }
-            },
-            (error)=>{
-                console.log('Error', error)
-            }
-         )
-     })
-  }
+      name,
+      location,
+      description,
+      dateHike,
+      level,
+      length,
+      parkingAvailable,
+      id
+    } = val;
+    const parseNum = parseFloat(length);
+    db.transaction((tx) => {
+      tx.executeSql(
+        `UPDATE mhikeDataB SET
+              name=?,
+              location=?,
+              dateHike=?,
+              length=?,
+              level=?,
+              parkingAvailable=?,
+              description=?
+              WHERE id = ?
+              `,
+        [
+          name,
+          location,
+          dateHike,
+          parseNum,
+          level,
+          parkingAvailable,
+          description,
+          id
+        ],
+        async (txtObj, resultSet) => {
+            console.log("update ok");
+        },
+        (error) => {
+          console.log("Error", error);
+        }
+      );
+    });
+  };
 
   const submit = useCallback((v, { resetForm }) => {
     Alert.alert(
       "Confirmation",
-      `Are you sure what you typed ? \n
-     New hike will be added:
-     Name: ${v.name}
-     Location: ${v.location}
-     Date of the hike: ${v.dateHike}
-     Parking Available: ${v.parkingAvailable}
-     Length of the hike: ${v.length}
-     Difficulty level: ${v.level}
-     Description: ${v.description ? v.description : "None"}
-    `,
+      `Are you sure what you edited ? \n
+       New hike will be added:
+       Name: ${v.name}
+       Location: ${v.location}
+       Date of the hike: ${v.dateHike}
+       Parking Available: ${v.parkingAvailable}
+       Length of the hike: ${v.length}
+       Difficulty level: ${v.level}
+       Description: ${v.description ? v.description : "None"}
+      `,
       [
         {
           text: "Cancel",
@@ -107,13 +134,7 @@ export default function Add() {
         {
           text: "Yes",
           onPress: () => {
-            resetForm({ values: initialValues });
-            setCheckConf({
-              y: false,
-              n: false,
-            });
-            console.log(v);
-            createHike(v);
+            editHike(v)
           },
         },
       ]

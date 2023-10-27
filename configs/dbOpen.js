@@ -1,5 +1,5 @@
-import { openDatabase } from "expo-sqlite"
+import * as SQLite from "expo-sqlite"
 
-const db = openDatabase('mhikedata.db', '1.0', '', 100000);
+const db = SQLite.openDatabase('mhikeapp.db');
 
 export {db}
