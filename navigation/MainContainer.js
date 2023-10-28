@@ -19,13 +19,14 @@ const Tab = createBottomTabNavigator();
 export default function MainContainer() {
   useEffect(() => {
     createdB();
+    createDbObser();
   }, []);
 
   const createdB = () => {
     db.transaction((tx) => {
       tx.executeSql(
-        `CREATE TABLE IF NOT EXISTS mhikeDataB (
-         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        `CREATE TABLE IF NOT EXISTS MHikeD (
+         hike_id INTEGER PRIMARY KEY AUTOINCREMENT,
          name TEXT,
          location TEXT,
          dateHike TEXT,
@@ -39,9 +40,29 @@ export default function MainContainer() {
           console.log("create a table ok", resultSet),
         (txtObj, error) => console.log("error create table", error)
       );
-      console.log("vo");
+      console.log("accessed hike table");
     });
   };
+  const createDbObser = () => {
+    db.transaction((tx) => {
+        tx.executeSql(
+          `CREATE TABLE IF NOT EXISTS ObserD (
+           id_ob INTEGER PRIMARY KEY AUTOINCREMENT,
+           observation TEXT,
+           time TEXT,
+           comments TEXT,
+           hike_id INTEGER NOT NULL,
+           FOREIGN KEY (hike_id)
+               REFERENCES MHikeD (hike_id)
+         );`,
+          null,
+          async (txtObj, resultSet) =>
+            console.log("create a table ok", resultSet),
+          (txtObj, error) => console.log("error create table", error)
+        );
+        console.log("accessed obser table");
+    });
+  }
   return (
     <NavigationContainer>
       <Tab.Navigator

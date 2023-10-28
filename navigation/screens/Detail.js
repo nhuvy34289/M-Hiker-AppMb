@@ -46,7 +46,7 @@ export default function Detail() {
     level: objData.level,
     length: objData.length.toString(),
     parkingAvailable: objData.parkingAvailable,
-    id: idCard,
+    hike_id: idCard,
   };
   const onPressDate = () => {
     setShowDate(true);
@@ -77,12 +77,12 @@ export default function Detail() {
       level,
       length,
       parkingAvailable,
-      id
+      hike_id
     } = val;
     const parseNum = parseFloat(length);
     db.transaction((tx) => {
       tx.executeSql(
-        `UPDATE mhikeDataB SET
+        `UPDATE MHikeD SET
               name=?,
               location=?,
               dateHike=?,
@@ -90,7 +90,7 @@ export default function Detail() {
               level=?,
               parkingAvailable=?,
               description=?
-              WHERE id = ?
+              WHERE hike_id = ?
               `,
         [
           name,
@@ -100,7 +100,7 @@ export default function Detail() {
           level,
           parkingAvailable,
           description,
-          id
+          hike_id
         ],
         async (txtObj, resultSet) => {
             console.log("update ok");

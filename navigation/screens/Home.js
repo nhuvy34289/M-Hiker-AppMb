@@ -26,7 +26,7 @@ export default function Home({ navigation }) {
   };
 
   const onOpenDetails = (id) => {
-    const findData = dataH.data.find((item) => item.id === id);
+    const findData = dataH.data.find((item) => item.hike_id === id);
     navigation.navigate("DETAIL", {
       idCard: id,
       objData: findData,
@@ -37,15 +37,25 @@ export default function Home({ navigation }) {
   const deleteItem = async (id) => {
     await db.transaction((tx) => {
       tx.executeSql(
-        "DELETE FROM mhikeDataB  WHERE id=?",
+        "DELETE FROM MHikeD  WHERE hike_id=?",
         [id],
         async (txtObj, resultSet) => {
-          let newDats = [...dataH.data].filter((d) => d.id !== id);
+          let newDats = [...dataH.data].filter((d) => d.hike_id !== id);
           setDataH({
             data: newDats,
             empty: newDats.length > 0 ? false : true,
           });
           console.log("Del OK");
+          tx.executeSql(
+            "DELETE FROM ObserD  WHERE hike_id=?",
+            [id],
+            async (txtObj, resultSet) => {
+              console.log("Del OK obsers of hike");
+            },
+            (txtObj, error) => {
+              console.log("error", error);
+            }
+          );
         },
         (txtObj, error) => {
           console.log("error", error);
@@ -54,10 +64,17 @@ export default function Home({ navigation }) {
     });
   };
 
+  const openObs = (id) => {
+    navigation.navigate("OBSERVATION", {
+        idHike: id,
+        message: "taken id ok!!!",
+      });
+  }
+
   const deleteAllItems = async () => {
     await db.transaction((tx) => {
       tx.executeSql(
-        "DELETE FROM mhikeDataB",
+        "DELETE FROM MHikeD",
         null,
         async (txtObj, result) => {
           console.log("Del ALL OK", result);
@@ -71,12 +88,24 @@ export default function Home({ navigation }) {
         }
       );
     });
+    await db.transaction((tx) => {
+        tx.executeSql(
+          "DELETE FROM ObserD",
+          null,
+          async (txtObj, result) => {
+            console.log("Del ALL OK OBS", result);
+          },
+          (txtObj, error) => {
+            console.log("error", error);
+          }
+        );
+      });
   };
 
   const fetchAllData = async () => {
     await db.transaction((tx) => {
       tx.executeSql(
-        "SELECT * FROM mhikeDataB",
+        "SELECT * FROM MHikeD",
         null,
         async (txtObj, resultSet) => {
           let itemArray = [];
@@ -117,7 +146,7 @@ export default function Home({ navigation }) {
 
   const uiItem = ({ item, index }) => (
     <View style={styles.wrapperItem}>
-      <TouchableOpacity onPress={() => onOpenDetails(item.id)}>
+      <TouchableOpacity onPress={() => onOpenDetails(item.hike_id)}>
         <Text>{item.name}</Text>
       </TouchableOpacity>
       <View style={styles.wrapBtns}>
@@ -128,6 +157,7 @@ export default function Home({ navigation }) {
             borderRadius: 5,
             marginRight: 10,
           }}
+          onPress={() => openObs(item.hike_id)}
         >
           <Text style={{ color: "#fff" }}>More</Text>
         </TouchableOpacity>
@@ -137,7 +167,7 @@ export default function Home({ navigation }) {
             padding: 8,
             borderRadius: 5,
           }}
-          onPress={() => deleteItem(item.id)}
+          onPress={() => deleteItem(item.hike_id)}
         >
           <Text style={{ color: "#fff" }}>Delete</Text>
         </TouchableOpacity>
@@ -149,7 +179,7 @@ export default function Home({ navigation }) {
     <View style={{ flex: 1 }}>
       <FlatList
         data={dataH.data}
-        keyExtractor={(i) => i.id.toString()}
+        keyExtractor={(i) => i.hike_id.toString()}
         renderItem={uiItem}
         contentContainerStyle={{ marginTop: 40 }}
         refreshControl={

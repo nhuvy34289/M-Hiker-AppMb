@@ -60,7 +60,7 @@ export default function Add() {
       const parseNum = parseFloat(length);
      db.transaction((tx)=>{
         tx.executeSql(
-            `INSERT OR IGNORE INTO mhikeDataB
+            `INSERT OR IGNORE INTO MHikeD
             (name,location,dateHike,length,level,parkingAvailable,description)
             VALUES (?,?,?,?,?,?,?)
             `,
