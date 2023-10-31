@@ -6,9 +6,11 @@ import {
   TouchableOpacity,
   RefreshControl,
   Image,
+  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import { db } from "../../configs/dbOpen";
+import Toast from "react-native-toast-message"
 
 export default function Home({ navigation }) {
   const [dataH, setDataH] = useState({
@@ -34,6 +36,49 @@ export default function Home({ navigation }) {
     });
   };
 
+  const showToast = (type, txt) => {
+    Toast.show({
+      type: type,
+      text1: txt,
+    });
+  };
+
+  const actionDelItem = (id) => {
+    Alert.alert(
+      "Confirmation",
+      "Do you want to delete this hike ?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          onPress: () => deleteItem(id),
+        },
+      ]
+    );
+  }
+
+  const actionDelAll = (id) => {
+    Alert.alert(
+      "Confirmation",
+      "Do you want to delete all item ?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          onPress: () => deleteAllItems(),
+        },
+      ]
+    );
+  }
+
   const deleteItem = async (id) => {
     await db.transaction((tx) => {
       tx.executeSql(
@@ -45,15 +90,14 @@ export default function Home({ navigation }) {
             data: newDats,
             empty: newDats.length > 0 ? false : true,
           });
-          console.log("Del OK");
           tx.executeSql(
             "DELETE FROM ObserD  WHERE hike_id=?",
             [id],
             async (txtObj, resultSet) => {
-              console.log("Del OK obsers of hike");
+              showToast('success', "Delete the item successfully!")
             },
             (txtObj, error) => {
-              console.log("error", error);
+              showToast('error', "Delete the item successfully!")
             }
           );
         },
@@ -135,7 +179,6 @@ export default function Home({ navigation }) {
     return unsubscribe;
   }, [navigation]);
 
-  console.log(dataH);
 
   const refreshData = () => {
     setRefr(true, fetchAllData());
@@ -167,7 +210,7 @@ export default function Home({ navigation }) {
             padding: 8,
             borderRadius: 5,
           }}
-          onPress={() => deleteItem(item.hike_id)}
+          onPress={() => actionDelItem(item.hike_id)}
         >
           <Text style={{ color: "#fff" }}>Delete</Text>
         </TouchableOpacity>
@@ -216,7 +259,7 @@ export default function Home({ navigation }) {
                 borderRadius: 5,
                 width: "30%",
               }}
-              onPress={() => deleteAllItems()}
+              onPress={actionDelAll}
             >
               <Text
                 style={{

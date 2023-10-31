@@ -1,14 +1,15 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import MainContainer from './navigation/MainContainer'
-import { useEffect } from 'react'
-import { db, createdB } from './configs/dbOpen';
 import { LogBox } from 'react-native';
+import Toast from 'react-native-toast-message'
 LogBox.ignoreLogs(['new NativeEventEmitter']); 
 
 export default function App() {
   return (
-    <MainContainer />
+  <>
+     <MainContainer />
+     <Toast />
+  </>
   );
 }
 

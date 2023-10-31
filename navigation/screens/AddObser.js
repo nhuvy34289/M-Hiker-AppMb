@@ -15,6 +15,7 @@ import {
   import KeyBoardAvoidViewWrapper from "../../components/KeyBoardAdvoidView/KeyBoardAdvoidView";
   import { db } from "../../configs/dbOpen";
 import { useRoute } from "@react-navigation/native"
+import Toast from "react-native-toast-message"
   
   const FormSchema = Yup.object().shape({
     name: Yup.string().min(7).max(30).required("Please enter name of hike!"),
@@ -35,6 +36,13 @@ import { useRoute } from "@react-navigation/native"
     const onPressDate = () => {
       setShowDate(true);
     };
+
+    const showToast = (type, txt) => {
+      Toast.show({
+        type: type,
+        text1: txt,
+      });
+    }
   
     const createOb = ( val )=> {
       const {
@@ -55,13 +63,13 @@ import { useRoute } from "@react-navigation/native"
                       // Alert.alert('The hike is duplicated !', [
                       //     {text: 'OK', onPress: () => console.log('OK Pressed')},
                       // ]);
-                      console.log('duplicate error')
-                  }else{
+                      showToast('error', 'Created fail with the existed record !');
+                    }else{
                       // Alert.alert('The hike is created successsfully !', [
                       //     {text: 'OK', onPress: () => console.log('OK Pressed')},
                       // ]);
-                      console.log('success')
-                  }
+                      showToast('success', 'Created successfully !');
+                    }
               },
               (error)=>{
                   console.log('Error', error)
@@ -223,8 +231,8 @@ import { useRoute } from "@react-navigation/native"
                   />
                 </View>
               </View>
-              <TouchableOpacity onPress={handleSubmit}>
-                <Text>Submit</Text>
+              <TouchableOpacity onPress={handleSubmit} style={styles.btnSubm}>
+                <Text style={styles.txtBtnSubm}>Submit</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -282,6 +290,22 @@ import { useRoute } from "@react-navigation/native"
       flexDirection: "row",
       justifyContent: "space-between",
     },
+    btnSubm: {
+      width:"100%",
+      padding: 15,
+      backgroundColor: "#0047AB",
+      borderRadius: 7,
+      textAlign: "center",
+      marginTop: 10,
+      marginBottom: 10,
+    },
+    txtBtnSubm: {
+      textAlign: "center",
+      fontSize: 17,
+      fontWeight: 'bold',
+      textTransform: "uppercase",
+      color: "#FFFFFF",
+    }
   });
   
   const pickerStyles = StyleSheet.create({

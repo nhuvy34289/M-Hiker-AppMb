@@ -17,6 +17,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import KeyBoardAvoidViewWrapper from "../../components/KeyBoardAdvoidView/KeyBoardAdvoidView";
 import CheckBox from "react-native-check-box";
 import { db } from "../../configs/dbOpen"
+import Toast from "react-native-toast-message"
 
 const FormSchema = Yup.object().shape({
   name: Yup.string().min(7).max(30).required("Please enter name of hike!"),
@@ -47,6 +48,13 @@ export default function Add() {
     setShowDate(true);
   };
 
+  const showToast = (type, txt) => {
+    Toast.show({
+      type: type,
+      text1: txt,
+    });
+  }
+
   const createHike = ( val )=> {
     const {
         name,
@@ -67,15 +75,9 @@ export default function Add() {
             [name, location, dateHike, parseNum, level, parkingAvailable, description],
             async (txtObj,resultSet)=>{
                 if(resultSet.rowsAffected<1){
-                    // Alert.alert('The hike is duplicated !', [
-                    //     {text: 'OK', onPress: () => console.log('OK Pressed')},
-                    // ]);
-                    console.log('duplicate error')
+                    showToast('error', 'Created fail with the existed record !');
                 }else{
-                    // Alert.alert('The hike is created successsfully !', [
-                    //     {text: 'OK', onPress: () => console.log('OK Pressed')},
-                    // ]);
-                    console.log('success')
+                    showToast('success', 'Created successfully !');
                 }
             },
             (error)=>{
@@ -112,7 +114,6 @@ export default function Add() {
               y: false,
               n: false,
             });
-            console.log(v);
             createHike(v);
           },
         },
@@ -448,8 +449,8 @@ export default function Add() {
                 />
               </View>
             </View>
-            <TouchableOpacity onPress={handleSubmit}>
-              <Text>Submit</Text>
+            <TouchableOpacity onPress={handleSubmit} style={styles.btnSubm}>
+              <Text style={styles.txtBtnSubm}>Submit</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -507,6 +508,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
+  btnSubm: {
+    width:"100%",
+    padding: 15,
+    backgroundColor: "#0047AB",
+    borderRadius: 7,
+    textAlign: "center",
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  txtBtnSubm: {
+    textAlign: "center",
+    fontSize: 17,
+    fontWeight: 'bold',
+    textTransform: "uppercase",
+    color: "#FFFFFF",
+  }
 });
 
 const pickerStyles = StyleSheet.create({

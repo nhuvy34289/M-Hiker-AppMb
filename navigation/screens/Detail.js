@@ -18,6 +18,7 @@ import KeyBoardAvoidViewWrapper from "../../components/KeyBoardAdvoidView/KeyBoa
 import CheckBox from "react-native-check-box";
 import { db } from "../../configs/dbOpen";
 import { useRoute } from "@react-navigation/native";
+import Toast from "react-native-toast-message";
 
 const FormSchema = Yup.object().shape({
   name: Yup.string().min(7).max(30).required("Please enter name of hike!"),
@@ -52,6 +53,13 @@ export default function Detail() {
     setShowDate(true);
   };
 
+  const showToast = (type, txt) => {
+    Toast.show({
+      type: type,
+      text1: txt,
+    });
+  };
+
   useEffect(() => {
     switch (objData.parkingAvailable) {
       case "Yes":
@@ -77,7 +85,7 @@ export default function Detail() {
       level,
       length,
       parkingAvailable,
-      hike_id
+      hike_id,
     } = val;
     const parseNum = parseFloat(length);
     db.transaction((tx) => {
@@ -100,13 +108,14 @@ export default function Detail() {
           level,
           parkingAvailable,
           description,
-          hike_id
+          hike_id,
         ],
         async (txtObj, resultSet) => {
-            console.log("update ok");
+          showToast("success", "Updated successfully !");
         },
         (error) => {
           console.log("Error", error);
+          showToast("error", "Updated fail !");
         }
       );
     });
@@ -134,7 +143,7 @@ export default function Detail() {
         {
           text: "Yes",
           onPress: () => {
-            editHike(v)
+            editHike(v);
           },
         },
       ]
@@ -469,8 +478,8 @@ export default function Detail() {
                 />
               </View>
             </View>
-            <TouchableOpacity onPress={handleSubmit}>
-              <Text>Submit</Text>
+            <TouchableOpacity style={styles.btnSubm} onPress={handleSubmit}>
+              <Text style={styles.txtBtnSubm}>Submit</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -527,6 +536,22 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  btnSubm: {
+    width: "100%",
+    padding: 15,
+    backgroundColor: "#0047AB",
+    borderRadius: 7,
+    textAlign: "center",
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  txtBtnSubm: {
+    textAlign: "center",
+    fontSize: 17,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    color: "#FFFFFF",
   },
 });
 

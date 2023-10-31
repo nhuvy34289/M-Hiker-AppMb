@@ -1,10 +1,8 @@
-import { View, Text } from "react-native";
 import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Add from "./screens/Add";
-import Search from "./screens/Search";
 import { db } from "../configs/dbOpen";
 import { StackHome } from "./StackHome";
 
@@ -74,8 +72,6 @@ export default function MainContainer() {
 
             if (rt == defaultNameScreen.home) {
               ic = focused ? "home" : "home-outline";
-            } else if (rt == defaultNameScreen.search) {
-              ic = focused ? "search" : "search";
             } else if (rt == defaultNameScreen.add) {
               ic = focused ? "add-circle" : "add-circle-outline";
             }
@@ -90,7 +86,6 @@ export default function MainContainer() {
           component={StackHome}
         />
         <Tab.Screen name={defaultNameScreen.add} component={Add} />
-        <Tab.Screen name={defaultNameScreen.search} component={Search} />
       </Tab.Navigator>
     </NavigationContainer>
   );

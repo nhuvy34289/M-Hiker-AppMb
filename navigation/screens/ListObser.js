@@ -5,10 +5,12 @@ import {
     FlatList,
     TouchableOpacity,
     RefreshControl,
+    Alert,
   } from "react-native";
   import React, { useState } from "react";
   import { db } from "../../configs/dbOpen";
 import { useNavigation } from "@react-navigation/native"
+import Toast from "react-native-toast-message"
   
   export default function ListObser({ idHike }) {
     const [dataOb, setDataOb] = useState({
@@ -36,6 +38,31 @@ import { useNavigation } from "@react-navigation/native"
         message: "taken id ok!!!",
       });
     };
+
+    const actionDelItem = (id) => {
+      Alert.alert(
+        "Confirmation",
+        "Do you want to delete this observation ?",
+        [
+          {
+            text: "Cancel",
+            onPress: () => console.log("Cancel Pressed"),
+            style: "cancel",
+          },
+          {
+            text: "Yes",
+            onPress: () => deleteItem(id),
+          },
+        ]
+      );
+    }
+
+    const showToast = (type, txt) => {
+      Toast.show({
+        type: type,
+        text1: txt,
+      });
+    };
   
     const deleteItem = async (id) => {
       await db.transaction((tx) => {
@@ -48,10 +75,10 @@ import { useNavigation } from "@react-navigation/native"
               data: newDats,
               empty: newDats.length > 0 ? false : true,
             });
-            console.log("Del OK");
+            showToast('success', 'Delete this observation successfully !')
           },
           (txtObj, error) => {
-            console.log("error", error);
+            showToast('error', 'Delete this observation fail !')
           }
         );
       });
@@ -127,7 +154,7 @@ import { useNavigation } from "@react-navigation/native"
               padding: 8,
               borderRadius: 5,
             }}
-            onPress={() => deleteItem(item.id_ob)}
+            onPress={() => actionDelItem(item.id_ob)}
           >
             <Text style={{ color: "#fff" }}>Delete</Text>
           </TouchableOpacity>
@@ -167,7 +194,7 @@ import { useNavigation } from "@react-navigation/native"
                   fontSize: 17,
                 }}
               >
-                List Hikes
+                List Observations
               </Text>
               <TouchableOpacity
                 style={{
